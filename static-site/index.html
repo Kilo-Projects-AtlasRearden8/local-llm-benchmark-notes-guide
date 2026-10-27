@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Running Local LLMs on a Home PC — Beginner Manual</title>
+<meta name="description" content="A plain-English, step-by-step guide to choosing, installing, and running large language models locally on your home computer. By Asdale Dynamics, LLC.">
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="wrapper">
+    <div class="brand">
+      <span class="brand-kicker">Asdale Dynamics, LLC &middot; Beginner AI Education</span>
+      <h1 class="brand-title">Running Local LLMs on a Home PC</h1>
+      <p class="brand-sub">A plain-English, step-by-step beginner manual &mdash; choose, install, and run AI models entirely on your own computer.</p>
+    </div>
+  </div>
+</header>
+
+<nav class="site-nav">
+  <div class="wrapper">
+    <a href="#introduction" class="nav-link">0. Introduction</a>
+    <a href="#choosing" class="nav-link">1. Choosing a Model</a>
+    <a href="#ram-vram" class="nav-link">2. RAM/VRAM Math</a>
+    <a href="#quantization" class="nav-link">3. Quantization</a>
+    <a href="#ollama" class="nav-link">4. Ollama Setup</a>
+    <a href="#lm-studio" class="nav-link">5. LM Studio Setup</a>
+    <a href="#llama-cpp" class="nav-link">6. llama.cpp Setup</a>
+    <a href="#measuring-speed" class="nav-link">7. Measuring Speed</a>
+    <a href="#privacy" class="nav-link">8. Privacy</a>
+    <a href="#cloud-vs-local" class="nav-link">9. Cloud vs. Local</a>
+    <a href="#worked-examples" class="nav-link">10. Worked Examples</a>
+    <a href="#checklists" class="nav-link">11. Checklists</a>
+    <a href="#calculator" class="nav-link nav-calc">RAM/VRAM Calculator</a>
+  </div>
+</nav>
+
+<main class="site-main wrapper">
+  <article class="manual" id="manual">
+
+    <section id="introduction" class="chapter">
+      <h2>0. Introduction &mdash; Why Run LLMs Locally?</h2>
+      <p>Welcome. This manual is written for anyone who has heard about AI, maybe played with a chatbot in a browser, and now wonders: <em>"Can I run this on my own computer?"</em></p>
+      <p>The short answer is: <strong>yes.</strong> And for many people, running models locally is the better way to start.</p>
+      <p><strong>What "local" means.</strong> When you use a chatbot on a website, your message travels to a company's server and an answer comes back. Your words leave your computer. When you run an LLM locally, the model lives on your machine and thinks using your processor and/or graphics card. Your messages never leave your house. No account. No monthly fee. No internet required after you download the model once.</p>
+      <p><strong>Who this is for.</strong> People curious about AI who want privacy and no subscriptions; writers, students, and small-business owners who want a tool they control; anyone on a slow or metered connection; healthcare workers and educators exploring AI safely (educational use only&mdash;never medical advice).</p>
+      <p class="chapter-note">This guide is produced by Asdale Dynamics, LLC, a small AI education and tools company founded by Dylan Asdale in Indiana in October 2026. Dylan is a registered nurse turned AI author; his book <em>The Massive AI Manual</em> and hub site dylanasdale.github.io explain AI "like a friend would."</p>
+    </section>
+
+    <section id="choosing" class="chapter">
+      <h2>1. Choosing a Model</h2>
+      <p>There are thousands of models. For a beginner, the choice comes down to one practical question: <strong>will it run on my computer?</strong></p>
+      <p>Models are sized by parameters&mdash;the internal "knobs" the model adjusts while learning. You will see names like 1B (1 billion), 3B, 8B, and 70B. Bigger is generally smarter, but bigger also needs more memory and runs slower. For everyday writing, summarizing, and coding help, an 8B or 14B model is often more than enough.</p>
+      <table class="data-table">
+        <thead>
+          <tr><th>Model family</th><th>Typical sizes</th><th>Good for</th><th>Notes</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Llama 3.2</td><td>1B, 3B</td><td>Fast chat on low-end machines</td><td>Very beginner-friendly</td></tr>
+          <tr><td>Llama 3.1</td><td>8B, 70B</td><td>Strong general assistant</td><td>8B fits many home PCs</td></tr>
+          <tr><td>Phi-3 / Phi-4</td><td>3.8B, 14B</td><td>Coding and reasoning</td><td>Efficient, from Microsoft</td></tr>
+          <tr><td>Qwen 2.5</td><td>1.5B, 7B, 32B</td><td>Multilingual, coding</td><td>Strong small models</td></tr>
+          <tr><td>Gemma 2</td><td>2B, 9B, 27B</td><td>General use</td><td>From Google, efficient</td></tr>
+          <tr><td>TinyLlama</td><td>1.1B</td><td>Old or weak hardware</td><td>Basic, slow, but tiny</td></tr>
+        </tbody>
+      </table>
+      <p>Where to get models: <a href="https://ollama.com/library" target="_blank" rel="noopener">Ollama library</a>, <a href="https://huggingface.co/models" target="_blank" rel="noopener">Hugging Face</a>, or LM Studio's built-in model discoverer. Start small&mdash;download a 1B or 3B model first, confirm it runs, then move up.</p>
+      <div class="callout callout-tip">
+        <strong>Your first model:</strong> try <strong>Llama 3.2 3B</strong> (about 2 GB at 4-bit). It runs on most computers with 8 GB of RAM and answers quickly. If that goes well, try Llama 3.1 8B if your machine has the memory.
+      </div>
+    </section>
+
+    <section id="ram-vram" class="chapter">
+      <h2>2. RAM/VRAM Math &mdash; Will It Fit?</h2>
+      <p>A model needs to live in memory while it runs. That memory is either <strong>VRAM</strong> (graphics card memory, fastest) or <strong>RAM</strong> (main memory, slower but usually larger). If the model does not fit, it will refuse to start, crawl, or force your operating system to swap to disk.</p>
+      <h3>Step 1: estimate the model's weight size</h3>
+      <table class="data-table">
+        <thead>
+          <tr><th>Precision</th><th>Bytes per parameter</th><th>What it means</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>FP32</td><td>4 bytes</td><td>Full precision; rarely needed locally</td></tr>
+          <tr><td>FP16 / BF16</td><td>2 bytes</td><td>Half precision; good quality</td></tr>
+          <tr><td>INT8</td><td>1 byte</td><td>8-bit quantization; small quality loss</td></tr>
+          <tr><td>INT4 / 4-bit</td><td>0.5 byte</td><td>4-bit quantization; great for home PCs</td></tr>
+        </tbody>
+      </table>
+      <p><strong>Rule of thumb:</strong> size in GB &asymp; parameters &times; bytes per parameter &divide; 1 billion.</p>
+      <table class="data-table">
+        <thead><tr><th>Model</th><th>Precision</th><th>Weight size</th></tr></thead>
+        <tbody>
+          <tr><td>Llama 3.1 8B</td><td>4-bit</td><td>~4 GB</td></tr>
+          <tr><td>Llama 3.1 8B</td><td>8-bit</td><td>~8 GB</td></tr>
+          <tr><td>Llama 3.1 70B</td><td>4-bit</td><td>~35 GB</td></tr>
+          <tr><td>TinyLlama 1.1B</td><td>4-bit</td><td>~0.55 GB</td></tr>
+        </tbody>
+      </table>
+      <h3>Step 2: add overhead</h3>
+      <p>You also need room for the KV cache (short-term conversation memory), the operating system, and other apps. A practical rule: <strong>budget model weights + 2&ndash;3 GB overhead.</strong></p>
+      <h3>Step 3: compare to what you have</h3>
+      <p>If you only remember one thing: <strong>start small, measure what actually fits, and move up only if you have headroom.</strong></p>
+    </section>
+
+    <section id="quantization" class="chapter">
+      <h2>3. Quantization Explained</h2>
+      <p>Quantization compresses a model's numbers, the way a JPEG compresses a photo&mdash;it throws away detail you barely notice, so the file takes far less space.</p>
+      <p>Instead of storing every weight with high precision (FP16, 2 bytes), you can store them at INT8 (1 byte) or INT4 / 4-bit (0.5 byte). Without quantization, an 8B model needs ~16 GB just for weights&mdash;too much for most home computers. At 4-bit, it needs ~4 GB.</p>
+      <p>The tradeoff: the more you compress, the more the model's reasoning can dull on hard math or nuanced writing. For everyday chat, summarization, and coding help, 4-bit is usually indistinguishable.</p>
+      <p>Local tools usually use <strong>GGUF</strong> files. You will see names like <code>llama-3.2-3b-instruct-q4_k_m.gguf</code>. The suffix tells you the quantization:</p>
+      <table class="data-table">
+        <thead><tr><th>Suffix</th><th>Meaning</th><th>Best for</th></tr></thead>
+        <tbody>
+          <tr><td>Q4_K_M</td><td>4-bit, medium quality</td><td>Daily use on home PCs (recommended start)</td></tr>
+          <tr><td>Q8_0</td><td>8-bit</td><td>Near-original quality, needs more RAM</td></tr>
+          <tr><td>FP16</td><td>No quantization</td><td>Best quality, needs a lot of RAM</td></tr>
+        </tbody>
+      </table>
+      <div class="callout callout-tip"><strong>How to choose:</strong> start with Q4_K_M. If it feels too dim-witted, try Q8_0&mdash;if you have the memory. If Q4_K_M does not fit, try a smaller model before a bigger one with heavier quantization.</div>
+    </section>
+
+    <section id="ollama" class="chapter">
+      <h2>4. Ollama Setup</h2>
+      <p>Ollama is the friendliest way to run local LLMs: one download, one command, and you are chatting with a model on your own machine.</p>
+      <h3>Step 1: install Ollama</h3>
+      <ol>
+        <li>Go to <a href="https://ollama.com" target="_blank" rel="noopener">ollama.com</a> and download the installer for Windows, Mac, or Linux.</li>
+        <li>Run the installer, then open a terminal and confirm: <code>ollama --version</code></li>
+      </ol>
+      <h3>Step 2: run your first model</h3>
+      <pre><code class="lang-bash">ollama run llama3.2:1b</code></pre>
+      <p>The first time, Ollama downloads the model (~1&ndash;2 GB). After that it runs offline. Type a message and press Enter. Type <code>/bye</code> to exit.</p>
+      <h3>Step 3: try a bigger model</h3>
+      <pre><code class="lang-bash">ollama pull llama3.2:3b
+ollama run llama3.2:3b</code></pre>
+      <table class="data-table">
+        <thead><tr><th>Command</th><th>What it does</th></tr></thead>
+        <tbody>
+          <tr><td><code>ollama list</code></td><td>Shows downloaded models</td></tr>
+          <tr><td><code>ollama ps</code></td><td>Shows running models and speed</td></tr>
+          <tr><td><code>ollama pull &lt;name&gt;</code></td><td>Downloads a model</td></tr>
+          <tr><td><code>ollama rm &lt;name&gt;</code></td><td>Deletes a model to free space</td></tr>
+        </tbody>
+      </table>
+      <p class="chapter-note">Models are stored in <code>~/.ollama/models</code> (Mac/Linux) or <code>%USERPROFILE%\.ollama\models</code> (Windows). They can be several gigabytes each&mdash;watch your disk space.</p>
+    </section>
+
+    <section id="lm-studio" class="chapter">
+      <h2>5. LM Studio Setup</h2>
+      <p>LM Studio is a polished desktop app with a visual interface. Good if you prefer clicking over typing, or want to compare several models side by side.</p>
+      <ol>
+        <li>Download and install from <a href="https://lmstudio.ai" target="_blank" rel="noopener">lmstudio.ai</a>.</li>
+        <li>Click Discover, search for a model (try Llama 3.2 3B), pick a <strong>4-bit / Q4_K_M</strong> version, and click Download.</li>
+        <li>Click Chat, choose your model from the picker, and start typing.</li>
+      </ol>
+      <p><strong>GPU offload slider:</strong> decides how much of the model goes to your graphics card versus main memory. Start in the middle. If chats are slow, slide right. If the app crashes, slide left.</p>
+      <p><strong>Local server:</strong> LM Studio can run a local API server at <code>http://localhost:1234</code> so other programs can talk to your model like a cloud API&mdash;but everything stays on your machine.</p>
+    </section>
+
+    <section id="llama-cpp" class="chapter">
+      <h2>6. llama.cpp Setup</h2>
+      <p>llama.cpp is the engine under the hood of many local LLM tools. It is fast and runs on almost any hardware. Using it directly is for maximum control.</p>
+      <pre><code class="lang-bash">git clone https://github.com/ggerganov/llama.cpp
+cd llama.cpp
+make llama-cli</code></pre>
+      <p>Then run a GGUF model:</p>
+      <pre><code class="lang-bash">./llama-cli -m models/llama-3.2-3b-instruct-q4_k_m.gguf -p "Hello, who are you?"</code></pre>
+      <p>With an NVIDIA GPU, rebuild with <code>LLAMA_CUDA=1</code> for speed. llama.cpp also includes <code>llama-server</code>, a local API server at an address you choose.</p>
+      <p class="chapter-note">Ollama and LM Studio use llama.cpp-compatible engines under the hood. Start with Ollama or LM Studio; come here when you want maximum control or a local server.</p>
+    </section>
+
+    <section id="measuring-speed" class="chapter">
+      <h2>7. Measuring Speed</h2>
+      <p>Speed decides whether a local LLM feels useful or frustrating.</p>
+      <table class="data-table">
+        <thead><tr><th>Metric</th><th>What it means</th></tr></thead>
+        <tbody>
+          <tr><td>Tokens per second (t/s)</td><td>How fast the model writes after it starts. Above ~3 t/s feels conversational; below ~1 t/s feels slow.</td></tr>
+          <tr><td>Time to first token (TTFT)</td><td>How long from pressing Enter until the first character appears.</td></tr>
+        </tbody>
+      </table>
+      <p><strong>How to measure:</strong> Ollama &rarr; <code>ollama ps</code>; llama.cpp &rarr; it prints <code>t/s</code> at the end; LM Studio &rarr; live readout in the chat panel.</p>
+      <p><strong>A quick measurement:</strong> <code>ollama run llama3.2:3b "Write a 200-word story about a robot learning to garden."</code> then check <code>ollama ps</code> in another terminal.</p>
+      <table class="data-table">
+        <thead><tr><th>Setup</th><th>Typical speed</th></tr></thead>
+        <tbody>
+          <tr><td>3B model, 4-bit, CPU only</td><td>1&ndash;4 t/s</td></tr>
+          <tr><td>8B model, 4-bit, CPU only</td><td>0.5&ndash;2 t/s</td></tr>
+          <tr><td>8B model, 4-bit, GPU offloaded</td><td>5&ndash;20+ t/s</td></tr>
+        </tbody>
+      </table>
+      <p class="chapter-note">A token is about 0.75 words in English, so 10 t/s &asymp; 7&ndash;8 words per second.</p>
+    </section>
+
+    <section id="privacy" class="chapter">
+      <h2>8. Privacy</h2>
+      <p>Privacy is the main reason people run AI locally. Once a model is downloaded:</p>
+      <ul>
+        <li>Your prompts and the model's answers never leave your computer.</li>
+        <li>No company sees your writing, code, or notes.</li>
+        <li>You can disconnect the internet and the model keeps working.</li>
+      </ul>
+      <p><strong>What touches the internet:</strong> downloading the model the first time, and (optionally) checking for app updates. Turn off cloud features if you want full privacy.</p>
+      <div class="callout callout-warn">
+        <strong>Important limits:</strong> local AI keeps your data on your machine, but it does not make the model trustworthy. Models hallucinate, reflect bias, and can give wrong answers. Always verify important information yourself. This guide is educational only&mdash;not medical advice. Never use it for actual patient decisions without professional oversight.
+      </div>
+    </section>
+
+    <section id="cloud-vs-local" class="chapter">
+      <h2>9. Cloud vs. Local &mdash; When to Use Which</h2>
+      <table class="data-table">
+        <thead><tr><th></th><th>Local</th><th>Cloud subscription</th></tr></thead>
+        <tbody>
+          <tr><td>Ongoing cost</td><td>$0</td><td>$0&ndash;$30/month</td></tr>
+          <tr><td>Hardware cost</td><td>Uses what you own</td><td>None</td></tr>
+          <tr><td>Internet after download</td><td>None</td><td>Required every message</td></tr>
+          <tr><td>Privacy</td><td>You control it</td><td>Provider sees input</td></tr>
+        </tbody>
+      </table>
+      <p><strong>Use local when:</strong> privacy matters, no monthly bill, spotty internet, learning and experimenting.</p>
+      <p><strong>Use cloud when:</strong> you need the smartest model for a one-off task, your hardware cannot run even a small model, or you need features local tools do not offer.</p>
+      <p class="chapter-note">Many people use both: a small local model for daily work, and a cloud model for occasional heavy lifting. You do not have to choose one forever.</p>
+    </section>
+
+    <section id="worked-examples" class="chapter">
+      <h2>10. Worked Examples</h2>
+      <div class="example-grid">
+        <div class="example-card">
+          <h3>Example A &mdash; MacBook Air, M2, 8 GB RAM</h3>
+          <p>Unified memory: model and macOS share 8 GB.</p>
+          <ul>
+            <li>Model: Llama 3.2 3B at 4-bit (~2 GB weights)</li>
+            <li>Tool: Ollama</li>
+            <li>Command: <code>ollama run llama3.2:3b</code></li>
+            <li>Expected speed: 3&ndash;6 t/s</li>
+          </ul>
+          <p><span class="fit-badge fit-yes">Fits? Yes, comfortably.</span></p>
+        </div>
+        <div class="example-card">
+          <h3>Example B &mdash; Windows PC, RTX 3060, 12 GB VRAM, 32 GB RAM</h3>
+          <ul>
+            <li>Model: Llama 3.1 8B at 4-bit Q4_K_M (~4&ndash;5 GB weights)</li>
+            <li>Tool: LM Studio or Ollama</li>
+            <li>Expected speed: 10&ndash;20 t/s</li>
+          </ul>
+          <p><span class="fit-badge fit-yes">Fits? Yes, easily.</span></p>
+        </div>
+        <div class="example-card">
+          <h3>Example C &mdash; Old laptop, 16 GB RAM, no dedicated GPU</h3>
+          <ul>
+            <li>Model: TinyLlama 1.1B or Phi-3.5 mini 3.8B at 4-bit</li>
+            <li>Tool: Ollama</li>
+            <li>Expected speed: 1&ndash;3 t/s</li>
+          </ul>
+          <p><span class="fit-badge fit-yes">Fits? Yes. Keep context short.</span></p>
+        </div>
+      </div>
+      <h3>Worksheet for your own computer</h3>
+      <ol class="worksheet">
+        <li>Total RAM: ______ GB</li>
+        <li>Dedicated VRAM: ______ GB, or "none/shared"</li>
+        <li>Model you want: ______ (size in B)</li>
+        <li>Quantization: Q4_K_M</li>
+        <li>Weight size: params &times; 0.5 = ______ GB</li>
+        <li>Plus overhead (+2&ndash;3 GB): ______ GB total</li>
+        <li>Does total fit in your RAM/VRAM? Yes / No</li>
+      </ol>
+      <p class="chapter-note">If No: pick a smaller model or heavier quantization, then redo the math.</p>
+    </section>
+
+    <section id="checklists" class="chapter">
+      <h2>11. Checklists</h2>
+      <div class="checklist-group">
+        <div class="checklist-card">
+          <h3>Before you download</h3>
+          <ul class="tick-list">
+            <li>I know my computer's total RAM</li>
+            <li>I know whether I have a dedicated GPU and how much VRAM it has</li>
+            <li>I picked a model small enough to fit</li>
+            <li>I chose Q4_K_M quantization to start</li>
+            <li>I have enough free disk space</li>
+          </ul>
+        </div>
+        <div class="checklist-card">
+          <h3>After setup</h3>
+          <ul class="tick-list">
+            <li>The model downloads and runs without error</li>
+            <li>I sent a test message and got an answer</li>
+            <li>I checked the speed (tokens per second)</li>
+            <li>I know how to stop or unload the model</li>
+            <li>I know where the model files live on my disk</li>
+          </ul>
+        </div>
+        <div class="checklist-card">
+          <h3>Privacy check</h3>
+          <ul class="tick-list">
+            <li>I tested the model while offline</li>
+            <li>I did not paste real passwords or patient records</li>
+            <li>I downloaded from a trusted source</li>
+            <li>I know how to delete the model and chat history</li>
+          </ul>
+        </div>
+        <div class="checklist-card">
+          <h3>Speed check</h3>
+          <ul class="tick-list">
+            <li>I measured tokens per second</li>
+            <li>Speed is above ~1 t/s (usable)</li>
+            <li>I closed other heavy apps before measuring</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section id="calculator" class="chapter calculator-section">
+      <h2>RAM/VRAM Calculator</h2>
+      <p>Enter your model's size and your computer's memory to see if it fits.</p>
+      <div class="calculator">
+        <div class="calc-inputs">
+          <label>Model size (billions of parameters)
+            <input type="number" id="modelSize" value="8" min="0.1" step="0.1">
+          </label>
+          <label>Quantization
+            <select id="quantization">
+              <option value="0.5">4-bit (0.5 byte per parameter) &mdash; recommended</option>
+              <option value="1">8-bit (1 byte per parameter)</option>
+              <option value="2">FP16 (2 bytes per parameter)</option>
+            </select>
+          </label>
+          <label>Available memory (GB)
+            <input type="number" id="availableMem" value="16" min="1" step="1">
+          </label>
+          <button id="calcBtn">Check if it fits</button>
+        </div>
+        <div class="calc-result" id="calcResult"></div>
+        <div class="calc-breakdown" id="calcBreakdown"></div>
+      </div>
+      <p class="calc-note">Adds a 2&ndash;3 GB cushion for overhead, KV cache, and your operating system. Results are estimates&mdash;measure what actually fits on your machine.</p>
+    </section>
+
+  </article>
+</main>
+
+<footer class="site-footer">
+    <div class="wrapper">
+      <p>&copy; 2026 Asdale Dynamics, LLC. Released under the <a href="../LICENSE">MIT License</a>.</p>
+      <p>Educational use only. Not medical advice. Models can make mistakes&mdash;verify important information yourself.</p>
+      <p>Maintained by Asdale Dynamics, LLC &middot; dylanasdale.github.io</p>
+    </div>
+  </footer>
+
+<script src="assets/app.js"></script>
+</body>
+</html>
