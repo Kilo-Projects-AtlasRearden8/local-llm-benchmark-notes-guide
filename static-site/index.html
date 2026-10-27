@@ -101,6 +101,8 @@
       <p>You also need room for the KV cache (short-term conversation memory), the operating system, and other apps. A practical rule: <strong>budget model weights + 2&ndash;3 GB overhead.</strong></p>
       <h3>Step 3: compare to what you have</h3>
       <p>If you only remember one thing: <strong>start small, measure what actually fits, and move up only if you have headroom.</strong></p>
+      <h3>Shared memory on Macs and laptops</h3>
+      <p>On Apple Silicon Macs and many laptops, RAM and VRAM are the same pool ("unified memory"). If your Mac has 16 GB unified memory, the model and macOS share it. Be more conservative than the table suggests — leave 4–6 GB for macOS itself.</p>
     </section>
 
     <section id="quantization" class="chapter">
@@ -144,6 +146,13 @@ ollama run llama3.2:3b</code></pre>
         </tbody>
       </table>
       <p class="chapter-note">Models are stored in <code>~/.ollama/models</code> (Mac/Linux) or <code>%USERPROFILE%\.ollama\models</code> (Windows). They can be several gigabytes each&mdash;watch your disk space.</p>
+      <h3>Custom models with a Modelfile</h3>
+      <p>You can tweak a model's behavior without programming. Create a file named <code>Modelfile</code>:</p>
+      <pre><code class="lang-text">FROM llama3.2:3b
+SYSTEM You are a helpful, concise writing assistant. Answer in plain English.</code></pre>
+      <p>Then create and run it:</p>
+      <pre><code class="lang-bash">ollama create my-assistant -f Modelfile
+ollama run my-assistant</code></pre>
     </section>
 
     <section id="lm-studio" class="chapter">
@@ -191,6 +200,14 @@ make llama-cli</code></pre>
         </tbody>
       </table>
       <p class="chapter-note">A token is about 0.75 words in English, so 10 t/s &asymp; 7&ndash;8 words per second.</p>
+      <h3>What affects speed</h3>
+      <ul>
+        <li><strong>Hardware</strong> &mdash; GPU (VRAM) is much faster than CPU for models.</li>
+        <li><strong>Model size</strong> &mdash; smaller models generate faster.</li>
+        <li><strong>Quantization</strong> &mdash; 4-bit is faster than 8-bit and FP16 because less data moves per token.</li>
+        <li><strong>Context length</strong> &mdash; very long conversations slow things down (the KV cache grows).</li>
+        <li><strong>Other apps</strong> &mdash; a browser with 50 tabs steals RAM and CPU.</li>
+      </ul>
     </section>
 
     <section id="privacy" class="chapter">
@@ -205,6 +222,14 @@ make llama-cli</code></pre>
       <div class="callout callout-warn">
         <strong>Important limits:</strong> local AI keeps your data on your machine, but it does not make the model trustworthy. Models hallucinate, reflect bias, and can give wrong answers. Always verify important information yourself. This guide is educational only&mdash;not medical advice. Never use it for actual patient decisions without professional oversight.
       </div>
+      <h3>Practical privacy checklist</h3>
+      <ul class="tick-list">
+        <li>Download models from sources you trust (Ollama library, Hugging Face, LM Studio's built-in catalog)</li>
+        <li>Run offline after downloading: turn off Wi-Fi and confirm chats still work</li>
+        <li>Avoid "uncensored" models from unknown creators &mdash; you do not know what is inside them</li>
+        <li>Do not paste real patient records, passwords, or secrets into any model, local or cloud</li>
+        <li>Delete chat history and models when you are done with a project</li>
+      </ul>
     </section>
 
     <section id="cloud-vs-local" class="chapter">
@@ -221,6 +246,8 @@ make llama-cli</code></pre>
       <p><strong>Use local when:</strong> privacy matters, no monthly bill, spotty internet, learning and experimenting.</p>
       <p><strong>Use cloud when:</strong> you need the smartest model for a one-off task, your hardware cannot run even a small model, or you need features local tools do not offer.</p>
       <p class="chapter-note">Many people use both: a small local model for daily work, and a cloud model for occasional heavy lifting. You do not have to choose one forever.</p>
+      <h3>A practical hybrid approach</h3>
+      <p>Many people use both: a small local model for daily drafting and privacy-sensitive work, and a cloud model for occasional heavy lifting. You are not choosing one forever &mdash; you can switch task by task.</p>
     </section>
 
     <section id="worked-examples" class="chapter">

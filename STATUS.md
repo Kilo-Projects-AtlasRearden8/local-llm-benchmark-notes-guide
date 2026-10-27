@@ -7,25 +7,26 @@ A beginner manual for choosing and running local LLMs on a home PC, produced for
 **`docs/` — Markdown manual (12 sections):**
 - 00-introduction.md — why run LLMs locally, who this is for
 - 01-choosing-a-model.md — model families, sizes, where to get them
-- 02-ram-vram-math.md — weight-size estimation, overhead, fit rules, worked example
+- 02-ram-vram-math.md — weight-size estimation, overhead, fit rules, worked example, shared/unified memory
 - 03-quantization.md — FP16/INT8/INT4, GGUF suffixes, how to choose
 - 04-ollama-setup.md — install, first model, commands, Modelfile
 - 05-lm-studio-setup.md — install, download, GPU offload slider, local server
-- 06-llama-cpp.md — build from source, run, local server, CUDA
-- 07-measuring-speed.md — tokens/sec, TTFT, per-tool measurement, expectations table
-- 08-privacy.md — what stays local, what touches internet, privacy checklist
-- 09-cloud-vs-local.md — when to use each, cost comparison
+- 06-llama-cpp.md — build from source, run, CUDA, local server
+- 07-measuring-speed.md — tokens/sec, TTFT, per-tool measurement, what affects speed, expectations table
+- 08-privacy.md — what stays local, what touches internet, privacy checklist, medical disclaimer
+- 09-cloud-vs-local.md — when to use each, cost comparison, hybrid approach
 - 10-worked-examples.md — MacBook Air M2 8 GB, RTX 3060 PC, old laptop 16 GB, worksheet
-- 11-checklists.md — before download, after setup, privacy, speed
+- 11-checklists.md — before download, after setup, privacy, speed, when to switch to cloud
 
 **`static-site/` — polished offline-friendly HTML version:**
-- index.html — all 12 sections, internal nav, table of contents
+- index.html — all 12 sections, internal nav, table of contents, RAM/VRAM calculator
 - assets/style.css — responsive CSS
 - assets/app.js — RAM/VRAM calculator (model size × quantization + overhead vs. available memory)
 
 **Root files:**
 - LICENSE — MIT, copyright line exactly `Copyright (c) 2026 Asdale Dynamics, LLC`
-- README.md — manual overview, credits Asdale Dynamics, LLC
+- README.md — manual overview, table of contents, credits Asdale Dynamics, LLC
+- STATUS.md — this file
 
 ## How to run it
 
@@ -39,16 +40,17 @@ A beginner manual for choosing and running local LLMs on a home PC, produced for
 
 ## Verification results
 
-- HTML structure: balanced open/close tags (verified with Python HTMLParser); all 13 internal `#` anchors resolve to 19 section ids; no dangling links.
+- HTML structure: balanced open/close tags (verified with Python HTMLParser); all 13 internal `#` anchors resolve to 19 section ids; no dangling links; 4 external links present.
 - Assets: `index.html`, `assets/style.css`, `assets/app.js` all served and fetched successfully over HTTP (200 OK).
 - Calculator logic (Node simulation):
-  - 8B Q4, 16 GB → "Fits with room to spare" (weights 4.00 GB)
-  - 70B Q4, 16 GB → "Probably too large" (weights 35.00 GB)
-  - 70B Q4, 64 GB → fits
-  - 3B Q4, 8 GB → fits (weights 1.50 GB)
+  - 8B Q4, 16 GB → "Fits with room to spare" (weights 4.00 GB, total 6.50 GB)
+  - 70B Q4, 16 GB → "Probably too large" (weights 35.00 GB, total 37.50 GB)
+  - 70B Q4, 64 GB → fits (weights 35.00 GB, total 37.50 GB)
+  - 3B Q4, 8 GB → fits (weights 1.50 GB, total 4.00 GB)
+  - 14B Q4, 16 GB → fits (weights 7.00 GB, total 9.50 GB)
 - LICENSE: contains exact line `Copyright (c) 2026 Asdale Dynamics, LLC`.
 - README: contains "Asdale Dynamics, LLC" credit.
-- Git: initialized, all files staged and committed as `6588466` under existing identity (Dylan Asdale / dylanasdale@users.noreply.github.com). No co-author trailers. No push, no remote created.
+- Git: initialized, all files staged and committed under existing identity (Dylan Asdale / dylanasdale@users.noreply.github.com). No co-author trailers. No push, no remote created.
 
 No test framework was configured for this repo; verification was done via the HTML parser check, asset fetch check, and calculator logic simulation above.
 

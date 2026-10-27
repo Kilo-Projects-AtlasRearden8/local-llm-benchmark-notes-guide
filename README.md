@@ -6,14 +6,20 @@ Written by **Dylan Asdale**, registered nurse turned AI author and founder of **
 
 ## What this manual covers
 
-- Choosing a model that fits your computer
-- RAM/VRAM math so you know what will run before you download
-- Quantization explained in plain language
-- Step-by-step setup for Ollama, LM Studio, and llama.cpp
-- Measuring speed (tokens per second)
-- Privacy: what stays local and what doesn't
-- When cloud AI still makes sense
-- Worked examples and checklists you can follow today
+| Section | Topic |
+|---|---|
+| 0. Introduction | Why run LLMs locally, who this is for |
+| 1. Choosing a Model | Model families, sizes, where to get them |
+| 2. RAM/VRAM Math | Will it fit? Weight-size estimation, overhead, fit rules |
+| 3. Quantization | FP16, INT8, INT4, GGUF explained in plain language |
+| 4. Ollama Setup | Install, first model, commands, Modelfile |
+| 5. LM Studio Setup | Install, download, GPU offload slider, local server |
+| 6. llama.cpp Setup | Build from source, run, CUDA, local server |
+| 7. Measuring Speed | Tokens per second, TTFT, realistic expectations |
+| 8. Privacy | What stays local, what touches the internet |
+| 9. Cloud vs. Local | When to use each, cost comparison, hybrid approach |
+| 10. Worked Examples | MacBook Air, gaming PC, old laptop, worksheet |
+| 11. Checklists | Before download, after setup, privacy, speed |
 
 ## Where to read it
 
@@ -42,4 +48,4 @@ Copyright (c) 2026 Asdale Dynamics, LLC.
 
 ## Disclaimer
 
-This guide is educational only. It is not medical advice, financial advice, or a substitute for professional consultation. AI models can make mistakes — always verify important information yourself.
+This guide is educational only. It is not medical advice, financial advice, or a substitute for professional consultation. AI models can make mistakes — always verify important information yourself. If you are a healthcare worker exploring AI, never use it for actual patient decisions without professional oversight.
